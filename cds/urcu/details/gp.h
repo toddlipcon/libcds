@@ -73,7 +73,7 @@ namespace cds { namespace urcu { namespace details {
             CDS_COMPILER_RW_BARRIER;
         }
         else {
-            pRec->m_nAccessControl.fetch_add( 1, atomics::memory_order_relaxed );
+            pRec->m_nAccessControl.store( tmp + 1, atomics::memory_order_relaxed );
         }
     }
 
@@ -83,8 +83,8 @@ namespace cds { namespace urcu { namespace details {
         thread_record * pRec = get_thread_record();
         assert( pRec != nullptr );
 
-        CDS_COMPILER_RW_BARRIER;
-        pRec->m_nAccessControl.fetch_sub( 1, atomics::memory_order_release );
+        uint32_t tmp = pRec->m_nAccessControl.load( atomics::memory_order_relaxed );
+        pRec->m_nAccessControl.store( tmp - 1, atomics::memory_order_release );
     }
 
     template <typename RCUtag>
